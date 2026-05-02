@@ -19,8 +19,6 @@ def insertion_sort(arr):
 
 
 def merge_sort(arr):
-    arr = arr.copy()
-
     if len(arr) <= 1:
         return arr
 
@@ -34,8 +32,7 @@ def merge_sort(arr):
 
 def merge(left, right):
     result = []
-    i = 0
-    j = 0
+    i = j = 0
 
     while i < len(left) and j < len(right):
         if left[i] <= right[j]:
@@ -47,7 +44,6 @@ def merge(left, right):
 
     result.extend(left[i:])
     result.extend(right[j:])
-
     return result
 
 
@@ -56,10 +52,11 @@ def timsort(arr):
 
 
 def measure_time(sort_function, data):
+    #  робимо кілька запусків і беремо середнє
     return timeit.timeit(
         lambda: sort_function(data),
-        number=1
-    )
+        number=3
+    ) / 3
 
 
 def generate_data(size):
@@ -86,8 +83,8 @@ def main():
     }
 
     for size in sizes:
-        print(f"\nРозмір масиву: {size}")
-        print("-" * 70)
+        print(f"\n Розмір масиву: {size}")
+        print("=" * 60)
 
         datasets = generate_data(size)
 
@@ -95,13 +92,9 @@ def main():
             print(f"\nТип даних: {data_name}")
 
             for algorithm_name, algorithm in algorithms.items():
-                if algorithm_name == "Insertion Sort" and size > 5000:
-                    print(f"{algorithm_name}: пропущено, дуже повільно")
-                    continue
-
                 execution_time = measure_time(algorithm, data)
 
-                print(f"{algorithm_name}: {execution_time:.6f} секунд")
+                print(f"{algorithm_name:15}: {execution_time:.6f} сек")
 
 
 if __name__ == "__main__":
