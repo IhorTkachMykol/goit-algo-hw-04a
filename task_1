@@ -1,0 +1,87 @@
+import argparse
+import shutil
+from pathlib import Path
+
+
+def copy_files_by_extension(source_dir: Path, destination_dir: Path):
+    """
+    Рекурсивно читає файли з source_dir
+    і копіює їх у destination_dir, сортуючи за розширенням.
+    """
+
+    try:
+        for item in source_dir.iterdir():
+
+            if item.is_dir():
+                copy_files_by_extension(item, destination_dir)
+
+            elif item.is_file():
+                extension = item.suffix.lower().replace(".", "")
+
+                if extension == "":
+                    extension = "no_extension"
+
+                target_dir = destination_dir / extension
+                target_dir.mkdir(parents=True, exist_ok=True)
+
+                target_file = target_dir / item.name
+
+                try:
+                    shutil.copy2(item, target_file)
+                    print(f"Скопійовано: {item} -> {target_file}")
+
+                except PermissionError:
+                    print(f"Немає доступу до файлу: {item}")
+
+                except OSError as error:
+                    print(f"Помилка копіювання файлу {item}: {error}")
+
+    except PermissionError:
+        print(f"Немає доступу до директорії: {source_dir}")
+
+    except FileNotFoundError:
+        print(f"Директорію не знайдено: {source_dir}")
+
+    except OSError as error:
+        print(f"Помилка читання директорії {source_dir}: {error}")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Рекурсивне копіювання файлів з сортуванням за розширенням"
+    )
+
+    parser.add_argument(
+        "source",
+        help="Шлях до вихідної директорії"
+    )
+
+    parser.add_argument(
+        "destination",
+        nargs="?",
+        default="dist",
+        help="Шлях до директорії призначення. За замовчуванням: dist"
+    )
+
+    args = parser.parse_args()
+
+    source_dir = Path(args.source)
+    destination_dir = Path(args.destination)
+
+    if not source_dir.exists():
+        print("Помилка: вихідна директорія не існує.")
+        return
+
+    if not source_dir.is_dir():
+        print("Помилка: вказаний шлях не є директорією.")
+        return
+
+    destination_dir.mkdir(parents=True, exist_ok=True)
+
+    copy_files_by_extension(source_dir, destination_dir)
+
+    print("Копіювання завершено.")
+
+
+if __name__ == "__main__":
+    main()
