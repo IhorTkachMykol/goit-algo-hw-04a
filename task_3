@@ -1,1 +1,108 @@
-3
+import random
+import timeit
+
+
+def insertion_sort(arr):
+    arr = arr.copy()
+
+    for i in range(1, len(arr)):
+        key = arr[i]
+        j = i - 1
+
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+
+        arr[j + 1] = key
+
+    return arr
+
+
+def merge_sort(arr):
+    arr = arr.copy()
+
+    if len(arr) <= 1:
+        return arr
+
+    middle = len(arr) // 2
+
+    left = merge_sort(arr[:middle])
+    right = merge_sort(arr[middle:])
+
+    return merge(left, right)
+
+
+def merge(left, right):
+    result = []
+    i = 0
+    j = 0
+
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    result.extend(left[i:])
+    result.extend(right[j:])
+
+    return result
+
+
+def timsort(arr):
+    return sorted(arr)
+
+
+def measure_time(sort_function, data):
+    return timeit.timeit(
+        lambda: sort_function(data),
+        number=1
+    )
+
+
+def generate_data(size):
+    random_data = [random.randint(0, 100000) for _ in range(size)]
+    sorted_data = sorted(random_data)
+    reversed_data = sorted(random_data, reverse=True)
+    partially_sorted_data = sorted_data[:size // 2] + random_data[size // 2:]
+
+    return {
+        "Random": random_data,
+        "Sorted": sorted_data,
+        "Reversed": reversed_data,
+        "Partially sorted": partially_sorted_data
+    }
+
+
+def main():
+    sizes = [100, 1000, 5000, 10000]
+
+    algorithms = {
+        "Insertion Sort": insertion_sort,
+        "Merge Sort": merge_sort,
+        "Timsort": timsort
+    }
+
+    for size in sizes:
+        print(f"\nРозмір масиву: {size}")
+        print("-" * 70)
+
+        datasets = generate_data(size)
+
+        for data_name, data in datasets.items():
+            print(f"\nТип даних: {data_name}")
+
+            for algorithm_name, algorithm in algorithms.items():
+                if algorithm_name == "Insertion Sort" and size > 5000:
+                    print(f"{algorithm_name}: пропущено, дуже повільно")
+                    continue
+
+                execution_time = measure_time(algorithm, data)
+
+                print(f"{algorithm_name}: {execution_time:.6f} секунд")
+
+
+if __name__ == "__main__":
+    main()
